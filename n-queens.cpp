@@ -7,6 +7,7 @@ void printBoard(int n,int board[20][20]){
         for(int j=0;j<n;j++) cout<<board[i][j]<<" ";
         cout<<endl;
     }
+    cout<<endl;
 }
 bool canPlace(int n,int board[20][20],int x,int y){
     int i = x, j = y;
@@ -35,7 +36,7 @@ bool solve(int n,int board[20][20],int i){
         if(canPlace(n,board,i,j)){
             board[i][j]=1;
             bool success = solve(n,board,i+1);
-            if(success) return true;
+            //if(success) return true;
             board[i][j]=0;
         }
     }
