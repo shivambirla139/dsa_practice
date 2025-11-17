@@ -1,69 +1,59 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
-#define int int64_t 
- 
-class SegmentTree{
-	public:
-	int n;
-	vector<int> v,tree;
-	SegmentTree(int n){
-		this->n = n;
-		v.resize(n);
-		tree.resize(4*n);
-	}
-	int build(int low,int high,int ti){
-		if(low == high){
-			tree[ti] = v[low];
-			return v[low];
-		}
-		int mid = (low+high)/2;
-		int left = build(low,mid,2*ti+1);
-		int right = build(mid+1,high,2*ti+2);
-		int sum = left + right;
-		return tree[ti] = sum;
-	}
-	int query(int low,int high,int l,int r,int ti){
-		if(r<low || high<l) return 0;
-		if(low>=l && high<=r) return tree[ti];
-		int mid = (low+high)/2;
-		int left = query(low,mid,l,r,2*ti+1);
-		int right = query(mid+1,high,l,r,2*ti+2);
-		return left+right;
-	}
-	void update(int low, int high, int ti,int i, int val){
-		if(low==high){
-			tree[ti] = val;
-			return;
-		}
-		int mid = (low+high)/2;
-		if(i<=mid) update(low, mid,2*ti+1 , i, val);
-		else update(mid+1, high,2*ti+2, i, val);
-		tree[ti] = tree[2*ti+1] + tree[2*ti+2];
-	}
-	void build(){
-		build(0,n-1,0);
-	}
-	int query(int l,int r){
-		return query(0,n-1,l,r,0);
-	}
-	void update(int i,int val){
-		update(0,n-1,0,i,val);
-	}
-};
-void runcase(){
-	int n,q;
-	cin>>n>>q;
-	SegmentTree st(n);
-	for(int i=0;i<n;i++) cin>>st.v[i];
-	st.build();
-	for(int i=0;i<q;i++){
-		int l,r;
-		cin>>l>>r;
-		cout<<st.query(l-1,r-1)<<endl;
-	}
+
+const int INF = 1e9;
+vector<int> arr, st;
+
+void buildTree(int si, int ss, int se) {
+    if (ss == se) {
+        st[si] = arr[ss];
+        return;
+    }
+    int mid = (ss + se) / 2;
+    buildTree(2 * si, ss, mid);
+    buildTree(2 * si + 1, mid + 1, se);
+    st[si] = min(st[2 * si], st[2 * si + 1]);
 }
-int32_t main(){
-	ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-	runcase();
+
+int query(int si, int ss, int se, int qs, int qe) {
+    if (qs > se || qe < ss) return INF;
+    if (ss >= qs && se <= qe) return st[si];
+    int mid = (ss + se) / 2;
+    int l = query(2 * si, ss, mid, qs, qe);
+    int r = query(2 * si + 1, mid + 1, se, qs, qe);
+    return min(l, r);
+}
+
+void update(int si, int ss, int se, int qi) {
+    if (ss == se) {
+        st[si] = arr[ss];
+        return;
+    }
+    int mid = (ss + se) / 2;
+    if (qi <= mid) update(2 * si, ss, mid, qi);
+    else update(2 * si + 1, mid + 1, se, qi);
+    st[si] = min(st[2 * si], st[2 * si + 1]);
+}
+
+int main() {
+    int n, q;
+    cin >> n >> q;
+    arr.resize(n);
+    for (int i = 0; i < n; i++) cin >> arr[i];
+    st.resize(4 * n);
+    buildTree(1, 0, n - 1);
+    while (q--) {
+        int type;
+        cin >> type;
+        if (type == 1) {
+            int l, r;
+            cin >> l >> r;
+            cout << query(1, 0, n - 1, l, r) << "\n";
+        } else {
+            int idx, val;
+            cin >> idx >> val;
+            arr[idx] = val;
+            update(1, 0, n - 1, idx);
+        }
+    }
 }
