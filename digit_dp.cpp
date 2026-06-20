@@ -1,26 +1,43 @@
 class Solution {
 public:
-    long long dp[16][2][2];
-    long long solve(string s , int index , bool started ,bool last){
-        if(index == s.size()) return started;
-        if(dp[index][started][last] != -1 ){
-            return dp[index][started][last];
+    long long dp[20][2][2]; 
+    // dp[index][started][tight]
+
+    long long solve(string &s, int index, bool started, bool tight) {
+        // BASE CASE
+        if (index == s.size()) {
+            return started; 
+            // return 1 if a valid number is formed (ignore leading zeros)
         }
-        int till = last ? s[index] - '0' : 9;
-        long long ret  = 0;
-        for(int i = 0; i <= till ; i++){
-            if(i == 0){
-                if(!started)
-                    ret += solve(s,index+1,started,(last && i == till));
+
+        // MEMOIZATION
+        if (dp[index][started][tight] != -1) {
+            return dp[index][started][tight];
+        }
+
+        int limit = tight ? (s[index] - '0') : 9;
+        long long ans = 0;
+
+        // TRY ALL DIGITS
+        for (int digit = 0; digit <= limit; digit++) {
+            bool newStarted = started || (digit > 0);
+            bool newTight = tight && (digit == limit);
+
+            if (!newStarted) {
+                // still leading zeros
+                ans += solve(s, index + 1, false, newTight);
+            } else {
+                // valid digit started
+                ans += solve(s, index + 1, true, newTight);
             }
-            else 
-                ret += solve(s, index+1, true, (last && i == till));
         }
-        return dp[index][started][last] =  ret ;
+
+        return dp[index][started][tight] = ans;
     }
-    long long countDistinct(long long n) {
+
+    long long countNumbers(long long n) {
         string s = to_string(n);
-        memset(dp,-1,sizeof(dp));
-        return solve(s,0,false,true);
+        memset(dp, -1, sizeof(dp));
+        return solve(s, 0, false, true);
     }
-};©leetcode
+};
