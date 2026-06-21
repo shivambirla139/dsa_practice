@@ -5,6 +5,10 @@
 using namespace std;
 using namespace __gnu_pbds;
 
+#define int int64_t
+const int mod = 1e9 + 7, inf = 1e18, maxn = 2e5 + 5;
+
+
 // ================= ORDERED SET =================
 // Unique elements, sorted + order statistics
 template<typename T>
