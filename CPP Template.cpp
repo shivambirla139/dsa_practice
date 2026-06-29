@@ -2,6 +2,9 @@
 #define int int64_t
 using namespace std;
 const int mod = 1e9 + 7, inf = 1e18, maxn = 2e5 + 5;
+using Grid3 = vector<vector<vector<int>>>;
+using Grid2 = vector<vector<int>>;
+using Grid1 = vector<int>;
 void solveTestcase() {
     
 }
@@ -17,6 +20,6 @@ int32_t main(){
     for (int i = 1; i <= t; i++) {
         // cout << "Test Case : " << i << endl;
         solveTestcase();
-        cout << flush;
+        // cout << endl << endl;
     }
 }
