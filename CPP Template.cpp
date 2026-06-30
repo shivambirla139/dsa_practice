@@ -2,12 +2,7 @@
 #define int int64_t
 #define double long double 
 using namespace std;
-using Grid3 = vector<vector<vector<int>>>;
-using Grid2 = vector<vector<int>>;
-using Grid1 = vector<int>;
-
 const int mod = 1e9 + 7, inf = 1e18, maxn = 301;
-
 void solveTestcase () {
 
 }
