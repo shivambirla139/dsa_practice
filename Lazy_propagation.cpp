@@ -1,74 +1,81 @@
-#include <bits/stdc++.h>
-using namespace std;
+struct LazySegTree {
+    int n;
+    vector<long long> tree, lazy;
 
-const int maxN = 100001;
-int ar[maxN], st[4*maxN], lazy[4*maxN];
-
-void build(int si, int ss, int se) {
-    if (ss == se) { st[si] = ar[ss]; return; }
-    int mid = (ss + se) / 2;
-    build(2*si, ss, mid);
-    build(2*si+1, mid+1, se);
-    st[si] = st[2*si] + st[2*si+1];
-}
-
-int query(int si, int ss, int se, int qs, int qe) {
-    if (lazy[si] != 0) {
-        int dx = lazy[si];
-        lazy[si] = 0;
-        st[si] += dx * (se - ss + 1);
-        if (ss != se) {
-            lazy[2*si] += dx;
-            lazy[2*si+1] += dx;
-        }
+    LazySegTree(int sz) {
+        n = sz;
+        tree.assign(4 * n + 4, 0);
+        lazy.assign(4 * n + 4, 0);
     }
-    if (ss > qe || se < qs) return 0;
-    if (ss >= qs && se <= qe) return st[si];
-    int mid = (ss + se) / 2;
-    return query(2*si, ss, mid, qs, qe) + query(2*si+1, mid+1, se, qs, qe);
-}
 
-void update(int si, int ss, int se, int qs, int qe, int val) {
-    if (lazy[si] != 0) {
-        int dx = lazy[si];
-        lazy[si] = 0;
-        st[si] += dx * (se - ss + 1);
-        if (ss != se) {
-            lazy[2*si] += dx;
-            lazy[2*si+1] += dx;
+    void build(int node, int l, int r, vector<int> &a) {
+        if (l == r) {
+            tree[node] = a[l];
+            return;
         }
-    }
-    if (ss > qe || se < qs) return;
-    if (ss >= qs && se <= qe) {
-        st[si] += val * (se - ss + 1);
-        if (ss != se) {
-            lazy[2*si] += val;
-            lazy[2*si+1] += val;
-        }
-        return;
-    }
-    int mid = (ss + se) / 2;
-    update(2*si, ss, mid, qs, qe, val);
-    update(2*si+1, mid+1, se, qs, qe, val);
-    st[si] = st[2*si] + st[2*si+1];
-}
 
-int main() {
-    int n, q;
-    cin >> n >> q;
-    for (int i = 1; i <= n; i++) cin >> ar[i];
-    build(1, 1, n);
-    while (q--) {
-        int code;
-        cin >> code;
-        if (code == 1) {
-            int l, r;
-            cin >> l >> r;
-            cout << query(1, 1, n, l, r) << "\n";
-        } else {
-            int l, r, val;
-            cin >> l >> r >> val;
-            update(1, 1, n, l, r, val);
-        }
+        int mid = (l + r) / 2;
+        build(2 * node, l, mid, a);
+        build(2 * node + 1, mid + 1, r, a);
+
+        tree[node] = tree[2 * node] + tree[2 * node + 1];
     }
-}
+
+    void push(int node, int l, int r) {
+        if (lazy[node] == 0) return;
+
+        tree[node] += (r - l + 1) * lazy[node];
+
+        if (l != r) {
+            lazy[2 * node] += lazy[node];
+            lazy[2 * node + 1] += lazy[node];
+        }
+
+        lazy[node] = 0;
+    }
+
+    void update(int node, int l, int r, int ql, int qr, long long val) {
+        push(node, l, r);
+
+        if (r < ql || l > qr) return;
+
+        if (ql <= l && r <= qr) {
+            lazy[node] += val;
+            push(node, l, r);
+            return;
+        }
+
+        int mid = (l + r) / 2;
+        update(2 * node, l, mid, ql, qr, val);
+        update(2 * node + 1, mid + 1, r, ql, qr, val);
+
+        tree[node] = tree[2 * node] + tree[2 * node + 1];
+    }
+
+    long long query(int node, int l, int r, int ql, int qr) {
+        push(node, l, r);
+
+        if (r < ql || l > qr) return 0;
+
+        if (ql <= l && r <= qr)
+            return tree[node];
+
+        int mid = (l + r) / 2;
+
+        return query(2 * node, l, mid, ql, qr)
+             + query(2 * node + 1, mid + 1, r, ql, qr);
+    }
+
+    // wrappers
+    void build(vector<int> &a) {
+        build(1, 0, n - 1, a);
+    }
+
+    void update(int l, int r, long long val) {
+        update(1, 0, n - 1, l, r, val);
+    }
+
+    long long query(int l, int r) {
+        return query(1, 0, n - 1, l, r);
+    }
+};
